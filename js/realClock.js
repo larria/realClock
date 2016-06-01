@@ -2,7 +2,7 @@ var realClock = function() {
     if (window.realClock) {
         return realClock;
     }
-    var verifyUrl = location.protocol.indexOf('http') > -1 ? location.protocol : 'http:' + '//hq.sinajs.cn/?rn=$random&list=sys_time',
+    var verifyUrl = (location.protocol.indexOf('http') > -1 ? location.protocol : 'http:') + '//hq.sinajs.cn/?rn=$random&list=sys_time',
         _verified = false,
         _started = false,
         _bindTask = [],
