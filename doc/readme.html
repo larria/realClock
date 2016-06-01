@@ -1,0 +1,127 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><link href='http://news.sina.com.cn/268/2014/1203/markfx.css' rel='stylesheet' type='text/css'><title>readme</title><link rel="stylesheet" href="http://news.sina.com.cn/268/2014/1210/monokai_sublime.css"><script src="http://news.sina.com.cn/268/2014/1210/highlight.pack.js"></script><script>hljs.initHighlightingOnLoad();</script></head><body><article class="markdown-body"><h1 id="realclockjs-"><a name="user-content-realclockjs-" href="#realclockjs-" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>realClock.js - 获取实时时间控件</h1>
+<h3 id="_1"><a name="user-content-_1" href="#_1" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>特性</h3>
+<ul>
+<li>
+<p>单体控件，弃置了OO（new XXX）的使用方式，杜绝旧控件的以下问题：</p>
+<ul>
+<li>
+<p>重复使用造成性能损耗乃至内存泄露</p>
+</li>
+<li>
+<p>诡异的多处时间不同步</p>
+</li>
+<li>
+<p>不必要的客户端和服务器压力</p>
+</li>
+</ul>
+</li>
+<li>
+<p>API支持需求定制，demo集成了全球时间、倒计时等常用业务</p>
+</li>
+<li>
+<p>业务调用返回一个<code>时间task</code>，用于暂停，销毁等后续操作</p>
+</li>
+</ul>
+<hr />
+<h3 id="_2"><a name="user-content-_2" href="#_2" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>资源引用</h3>
+<pre><code class="html">&lt;script src=&quot;src/realClock.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+
+<h3 id="_3"><a name="user-content-_3" href="#_3" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>方法</h3>
+<ul>
+<li>
+<p>getStatus() : 获取控件状态</p>
+</li>
+<li>
+<p>getTimesamp() : 获取当前时间戳</p>
+</li>
+<li>
+<p>bindView(conf[Object]) : 绑定视图更新，返回对应的task对象</p>
+</li>
+</ul>
+<pre><code class="javascript">// bindView conf格式示例
+{
+    node : document.getElementById('time_app'),  // 注入的视图节点
+    template : '现在是：#year#年#month2#月#date2#日 #hour2#点#minute2#分#second2#秒'  // 文字模板，用&quot;#&quot;成对引用时间数据，可选的时间数据有&quot;year, month, date, hour, minute, second, month2（固定占双字符，如为个位数将自动在前面补0，下同）, date2, hour2, minute2, second2&quot;,
+    offset : 0  // 可选，与北京时间的偏移量，以ms为单位
+}
+</code></pre>
+
+<ul>
+<li>onSecChanged(conf[Object]) : 秒变hook，返回对应的task对象，一般用于复杂需求</li>
+</ul>
+<pre><code class="javascript">// onSecChanged conf格式示例
+{
+    listener : function (realTimesamp) {
+        // body
+    },   // 秒变hook函数，接受当前时间戳为参数
+    offset : 0  // 可选，与北京时间的偏移量，以ms为单位
+}
+</code></pre>
+
+<ul>
+<li>offTask(task[Object]) : 解除特定的某个时间task</li>
+</ul>
+<p><code>task必须为特定的task对象引用，传入匿名对象没有任何意义，下同</code></p>
+<ul>
+<li>
+<p>pause(task[Object]) : 暂停特定的某个时间task</p>
+</li>
+<li>
+<p>continue(task[Object]) : （暂停后）继续特定的某个时间task</p>
+</li>
+</ul>
+<hr />
+<h3 id="_4"><a name="user-content-_4" href="#_4" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>示例</h3>
+<p><a href="../index.html">demo</a></p>
+<h5 id="1"><a name="user-content-1" href="#1" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>示例1：北京时间</h5>
+<p>html:<br />
+<pre><code class="html">&lt;span id=&quot;time_w0&quot;&gt;&lt;/span&gt;
+</code></pre></p>
+<p>js:<br />
+<pre><code class="javascript">// 绑定视图更新
+// 该行为返回一个“时间task”
+// 尽可能创建一个指向当前时间task的引用，方便后续管理
+var app0 = realClock.bindView({
+    node : document.getElementById('time_w0'),
+    template : '#year#年#month2#月#date2#日 #hour2#点#minute2#分#second2#秒'
+});
+
+// 暂停
+// realClock.pause(app0);
+
+// 暂停后继续
+// realClock.pause(app0);
+
+// 不再需要该task时，手动移除是个好习惯
+// realClock.offTask(app0);
+</code></pre></p>
+<h5 id="2-"><a name="user-content-2-" href="#2-" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>示例2：复杂需求定制 - 倒计时</h5>
+<p>html:<br />
+<pre><code class="html">距离2020年3月29日18点30分还有&lt;span id=&quot;time_w6&quot;&gt;&lt;/span&gt;
+</code></pre></p>
+<p>js:<br />
+<pre><code class="javascript">// 设定时间task
+var pointTask = {
+    listener : function (realTimesamp) {
+        var SECOND = 1000,
+            MINUTE = 60 * SECOND,
+            HOUR = MINUTE * 60,
+            DAY = 24 * HOUR,
+            dateOffset = 1585477800000 - realClock.getTimesamp(),
+            day, hour, minute, second;
+        if(dateOffset &lt; 0) {
+            day = hour = minute = second = '0';
+        } else {
+            day = parseInt(dateOffset / DAY, 10);
+            hour = parseInt((dateOffset % DAY) / HOUR, 10);
+            minute = parseInt((dateOffset % HOUR) / MINUTE, 10);
+            second = parseInt((dateOffset % MINUTE) / SECOND, 10);
+        }
+        document.getElementById('time_w6').innerHTML = day + '天' + hour + '小时' + minute + '分钟' + second + '秒';
+    }
+};
+// 启动倒计时
+var app6 = realClock.onSecChanged(pointTask);
+</code></pre></p>
+<hr /></article></body></html>

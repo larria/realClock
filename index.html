@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>realClock demo</title>
+    <style>
+    /* 初始化CSS */
+    html,body,ul,li,ol,dl,dd,dt,p,h1,h2,h3,h4,h5,h6,form,fieldset,legend,img{margin:0;padding:0;}
+    fieldset,img{border:none;}
+    address,caption,cite,code,dfn,th,var{font-style:normal; font-weight:normal;}
+    ul,ol{list-style:none;}
+    select,input{vertical-align:middle;}
+    select,input,textarea{font-size:12px;margin:0;}
+    table{border-collapse:collapse;}
+    body{background:#fff;color:#333;font:12px/22px 'Microsoft Yahei','微软雅黑','Simsun','宋体','Arial';}
+    /* 页面通用部分 */
+    .clearfix:after{content:".";display:block;height:0;visibility:hidden;clear:both;}
+    .clearfix{zoom:1;}
+    .clearit{clear:both;height:0;font-size:0;overflow:hidden;}
+    a{color:#1f3b7b;text-decoration:none;}
+    a:visited{color:#6079b2;}
+    a:hover,a:active,a:focus{color:#8d0000;text-decoration:underline;}
+    /*demo*/
+    body, p{ font-size: 14px;}
+    input{ margin: 0 5px; width: 20px;}
+    .wrap{ width: 1000px; margin: 0 auto;}
+    .blk-demo{ padding: 10px; margin: 10px; background-color: #f9f9f9;}
+    h1,h2,h3,h4,h5,h6{ padding: 5px 0;}
+    h1{ line-height: 50px; text-align: center;}
+    h2{ padding-top: 20px; border-top: 1px dashed #999;}
+    h6{ font-size: 14px;}
+    .em-red{ color: #f00;}
+    </style>
+    <script src="js/realClock.js" charset="utf-8"></script>
+</head>
+<body>
+    <div class="wrap">
+        <h1>realClock demo</h1>
+        <h2>demo1：基本控制</h2>
+        <div class="blk-demo">
+            <h6>格式化1：</h6>
+            <p>
+                <span id="time_w0"></span><br>
+                <button onclick="realClock.pause(app0)">暂停</button>
+                <button onclick="realClock.continue(app0)">继续</button>
+                <button onclick="realClock.offTask(app0)">解除任务（不再恢复）</button>
+            </p>
+        </div>
+        <style>
+        .specia{ display: inline-block; color: #f00; font-size: 20px; -webkit-animation-duration: .3s; -webkit-animation-name: zoomIn; animation-name: zoomIn; animation-duration: .3s; -webkit-animation-fill-mode: both; animation-fill-mode: both;} @-webkit-keyframes zoomIn {from {opacity: 0; -webkit-transform: scale3d(.8, .8, .8); transform: scale3d(.8, .8, .8); } 50% {opacity: 1; } } @keyframes zoomIn {from {opacity: 0; -webkit-transform: scale3d(.8, .8, .8); transform: scale3d(.8, .8, .8); } 50% {opacity: 1; } } </style>
+        <div class="blk-demo">
+            <h6>格式化2 & html标签 & xss攻击防范：</h6>
+            <p>
+                <span id="time_w1"></span><br>
+                <button onclick="realClock.pause(app1)">暂停</button>
+                <button onclick="realClock.continue(app1)">继续</button>
+                <button onclick="realClock.offTask(app1)">解除任务（不再恢复）</button>
+            </p>
+        </div>
+        <script>
+        function _id (id) {return document.getElementById(id);}
+
+        var app0 = realClock.bindView({
+            node : _id('time_w0'),
+            template : '#year#年#month2#月#date2#日 #hour2#点#minute2#分#second2#秒'
+        });
+
+        var app1 = realClock.bindView({
+            node : _id('time_w1'),
+            template : '<script type="javascript"\>alert(1)\<\/script\>#month#<script\>console.log(1)\<\/script\>.#date# #hour#:#minute#:<span class="specia">#second#</span>\<script\>console.log(1)\<\/script\>'
+        });
+        </script>
+        <h2>demo2：全球时间</h2>
+        <div class="blk-demo">
+            <p>
+                <span>美东</span>：<span id="time_w2"></span>
+            </p>
+            <p>
+                <span>加拿大</span>：<span id="time_w3"></span>
+            </p>
+            <p>
+                <span>英国</span>：<span id="time_w4"></span>
+            </p>
+            <p>
+                <span>东京</span>：<span id="time_w5"></span>
+            </p>
+        </div>
+        <script>
+        var globalTimezone = {
+            'US': '-12:00', //美国
+            'CA': '-12:00', //加拿大
+            'UK': '-08:00', //英国
+            'DE': '-07:00', //德国
+            'FR': '-07:00', //法国
+            'IT': '-07:00', //意大利
+            'PT': '-08:00', //葡萄牙
+            'ES': '-07:00', //西班牙
+            'CH': '-07:00', //瑞士
+            'AU': '+03:00', //澳大利亚
+            'NZ': '+05:00', //新西兰
+            'CN': '+00:00', //北京时间
+            'JP': '+01:00' //东京时间
+        };
+
+        function getTimezoneOffset (area) {
+            return area in globalTimezone ? globalTimezone[area].replace(':', '.') * 60 * 60 * 1000 : 0;
+        }
+
+        // 美东时间
+        var offetUS = getTimezoneOffset('US');
+        var app2 = realClock.bindView({
+            node : _id('time_w2'),
+            template : '#hour2#:#minute2#:#second2#',
+            offset : offetUS,
+            // 美东时间注意要点：从2007年开始，依据节约能源新法案，美国延长了夏令时制的实行时间，开始日期提前到3月第二个星期日，结束日期推后到11月第一个星期日
+        });
+
+        // 加拿大时间
+        var offetCA = getTimezoneOffset('CA');
+        var app3 = realClock.bindView({
+            node : _id('time_w3'),
+            template : '#hour2#:#minute2#:#second2#',
+            offset : offetCA
+        });
+
+        // 英国时间
+        var offetUK = getTimezoneOffset('UK');
+        var app4 = realClock.bindView({
+            node : _id('time_w4'),
+            template : '#hour2#:#minute2#:#second2#',
+            offset : offetUK
+        });
+
+        // 东京时间
+        var offetJP = getTimezoneOffset('JP');
+        var app5 = realClock.bindView({
+            node : _id('time_w5'),
+            template : '#hour2#:#minute2#:#second2#',
+            offset : offetJP
+        });
+        </script>
+
+        <h2>demo3：倒计时</h2>
+        <div class="blk-demo">
+            
+            <p>
+                <span>距离<input id="point_date" type="date" value="2020-03-29" style="width: 120px"><input type="text" value="18" id="point_hour">:<input type="text" value="30" id="point_minute">还有</span>：<span id="time_w6"></span><br>
+                <button onclick="realClock.pause(app6)">暂停倒计时</button>
+                <button onclick="realClock.continue(app6)">继续</button>
+            </p>
+        </div>
+        <script>
+        var p_date = _id('point_date'),
+            p_hour = _id('point_hour'),
+            p_minute = _id('point_minute'),
+            pointTime;
+
+        startPoint();
+        _id('point_date').onchange = _id('point_hour').onchange = _id('point_minute').onchange = function () {
+            startPoint();
+        }
+        function startPoint() {
+            var dateList = p_date.value.split('-');
+            pointTime = (new Date(dateList[0], dateList[1] - 1, dateList[2], p_hour.value, p_minute.value)).getTime();
+        }
+
+        // 设定倒计时任务
+        var pointTask = {
+            listener : function (realTimesamp) {
+                var SECOND = 1000,
+                    MINUTE = 60 * SECOND,
+                    HOUR = MINUTE * 60,
+                    DAY = 24 * HOUR,
+                    dateOffset = pointTime - realClock.getTimesamp(),
+                    day, hour, minute, second;
+                if(dateOffset < 0) {
+                    day = hour = minute = second = '0';
+                } else {
+                    day = parseInt(dateOffset / DAY, 10);
+                    hour = parseInt((dateOffset % DAY) / HOUR, 10);
+                    minute = parseInt((dateOffset % HOUR) / MINUTE, 10);
+                    second = parseInt((dateOffset % MINUTE) / SECOND, 10);
+                }
+                _id('time_w6').innerHTML = day + '天' + hour + '小时' + minute + '分钟' + second + '秒';
+            }
+        };
+        // 启动倒计时
+        var app6 = realClock.onSecChanged(pointTask);
+        </script>
+
+        <h2>demo4：获取组件全局状态</h2>
+        <div class="blk-demo">
+            
+            <p>时钟<span class="em-red" id="started">未</span>启动计时</p>
+            <p>时钟<span class="em-red" id="verified">未</span>与服务器校验实时时间</p>
+            <p>目前共<span class="em-red" id="task_len">0</span>个时间任务</p>
+        </div>
+        <script>
+            setInterval(function () {
+                var status = realClock.getStatus();
+                _id('started').innerHTML = status.started ? '已' : '未';
+                _id('verified').innerHTML = status.verified ? '已' : '未';
+                _id('task_len').innerHTML = status.taskLen;
+            }, 500);
+        </script>
+    </div>
+</body>
+</html>
