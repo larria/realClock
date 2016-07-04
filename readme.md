@@ -108,7 +108,7 @@ var pointTask = {
             MINUTE = 60 * SECOND,
             HOUR = MINUTE * 60,
             DAY = 24 * HOUR,
-            dateOffset = 1585477800000 - realClock.getTimesamp(),
+            dateOffset = 1585477800000 - realTimesamp,
             day, hour, minute, second;
         if(dateOffset < 0) {
             day = hour = minute = second = '0';

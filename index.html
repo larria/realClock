@@ -172,7 +172,7 @@
                     MINUTE = 60 * SECOND,
                     HOUR = MINUTE * 60,
                     DAY = 24 * HOUR,
-                    dateOffset = pointTime - realClock.getTimesamp(),
+                    dateOffset = pointTime - realTimesamp,
                     day, hour, minute, second;
                 if(dateOffset < 0) {
                     day = hour = minute = second = '0';
